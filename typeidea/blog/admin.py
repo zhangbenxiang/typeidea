@@ -8,7 +8,8 @@ from typeidea.custom_site import custom_site
 from typeidea.base_admin import BaseOwnerAdmin
 
 class PostInline(admin.TabularInline):
-    fields=('title','desc')
+    #fields=('title','desc')
+    fields=('title','desc','content','status','tag','owner')
     extra=1
     model=Post
 
