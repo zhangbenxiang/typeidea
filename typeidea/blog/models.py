@@ -61,7 +61,9 @@ class Tag(models.Model):
         return self.name
         
         
-        
+import mistune  
+
+from django.utils.functional import cached_property      
         
 class Post(models.Model):
     STATUS_NORMAL=1
@@ -73,6 +75,7 @@ class Post(models.Model):
         (STATUS_DRAFT,'草稿'),
     )
     
+    content_html=models.TextField(verbose_name='正文HTML代码',blank=True,editable=False)
     title=models.CharField(max_length=255,verbose_name='标题')
     desc=models.CharField(max_length=1024,blank=True,verbose_name='摘要')
     content=models.TextField(verbose_name='正文',help_text='正文必须是MarkDown格式')
@@ -84,6 +87,12 @@ class Post(models.Model):
     created_time=models.DateTimeField(auto_now_add=True,verbose_name='创建时间')
     pv=models.PositiveIntegerField(default=1)
     uv=models.PositiveIntegerField(default=1)
+    
+    
+    def save(self,*args,**kwargs):
+        self.content_html=mistune.markdown(self.content)
+        super().save(*args,**kwargs)
+    
     
     @classmethod
     def hot_posts(cls):
@@ -125,6 +134,9 @@ class Post(models.Model):
         return cls.objects.filter(status=cls.STATUS_NORMAL)
     
     
+    @cached_property
+    def tags(self):
+        return ','.join(self.tag.values_list('name',flat=True))
     
     
     
